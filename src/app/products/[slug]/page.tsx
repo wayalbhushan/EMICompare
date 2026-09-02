@@ -58,7 +58,7 @@ export default async function ProductPage({
 
   if (error) {
     return (
-      <main className="max-w-6xl mx-auto px-6 py-12">
+      <main className="max-w-[1400px] mx-auto px-8 py-12">
         <p className="text-text-muted">{error}</p>
       </main>
     )
@@ -69,7 +69,7 @@ export default async function ProductPage({
   }
 
   return (
-    <main className="max-w-6xl mx-auto px-6 py-12">
+    <main className="max-w-[1400px] mx-auto px-8 py-12">
       <ProductDetail product={product} />
     </main>
   )

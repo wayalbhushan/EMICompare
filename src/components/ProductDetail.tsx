@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
+import { Shield, Zap, CheckCircle } from 'lucide-react'
 import type { Product } from '@/app/products/[slug]/page'
 
 interface Props {
@@ -52,7 +53,7 @@ export default function ProductDetail({ product }: Props) {
         ← All products
       </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[55%_45%] gap-8 lg:gap-12">
+      <div className="grid grid-cols-1 lg:grid-cols-[45%_55%] gap-8 lg:gap-12">
         {/* ── LEFT COLUMN ── */}
         <div className="flex flex-col gap-6">
           {/* Product image */}
@@ -117,14 +118,46 @@ export default function ProductDetail({ product }: Props) {
             </div>
             <p className="text-sm text-text-muted">EMI plans backed by mutual funds</p>
           </div>
+
+          {/* Highlights & Trust Signals */}
+          {product.description && (
+            <div className="flex flex-col gap-4 pt-4 border-t border-border">
+              <div>
+                <p className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-3">Product Highlights</p>
+                <ul className="flex flex-col gap-2">
+                  {product.description.split('. ').filter(Boolean).map((bullet, i) => (
+                    <li key={i} className="text-sm text-text flex items-start gap-2">
+                      <span className="text-accent mt-0.5">•</span>
+                      <span>{bullet.endsWith('.') ? bullet : bullet + '.'}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div className="flex flex-row items-center gap-6 pt-2 flex-wrap">
+                <div className="flex items-center gap-1.5 text-xs text-text-muted font-medium">
+                  <Shield className="w-4 h-4 text-accent" />
+                  <span>Backed by mutual funds</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-text-muted font-medium">
+                  <Zap className="w-4 h-4 text-accent" />
+                  <span>Instant approval</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-text-muted font-medium">
+                  <CheckCircle className="w-4 h-4 text-accent" />
+                  <span>No hidden charges</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ── RIGHT COLUMN ── */}
-        <div className="relative flex flex-col gap-4">
+        <div className="flex flex-col gap-4">
           <p className="text-xs font-semibold text-text-muted uppercase tracking-widest">EMI Plans</p>
 
-          {/* EMI plan list — pb-20 ensures the sticky CTA never obscures the last row */}
-          <div className="flex flex-col gap-2 pb-20">
+          {/* EMI plan list */}
+          <div className="flex flex-col gap-2">
             {selectedVariant.emiPlans.map((plan) => {
               const isSelected = plan.id === selectedPlanId
               return (
@@ -178,8 +211,8 @@ export default function ProductDetail({ product }: Props) {
             })}
           </div>
 
-          {/* Sticky CTA — solid bg-accent, no transparency */}
-          <div className="sticky bottom-4">
+          {/* CTA */}
+          <div className="mt-6">
             {confirmed && selectedPlan ? (
               <div className="w-full rounded-lg p-4 bg-accent-light border border-accent text-center">
                 <p className="text-sm font-semibold text-accent">

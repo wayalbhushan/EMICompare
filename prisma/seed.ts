@@ -6,11 +6,14 @@ async function main() {
   // --- Product 1: iPhone 17 Pro ---
   const iphone = await prisma.product.upsert({
     where: { slug: 'iphone-17-pro' },
-    update: {},
+    update: {
+      description: "A19 Pro chip for pro-level performance. Titanium design, built to last. Pro camera system with 5x telephoto.",
+    },
     create: {
       slug: 'iphone-17-pro',
       name: 'iPhone 17 Pro',
       brand: 'Apple',
+      description: "A19 Pro chip for pro-level performance. Titanium design, built to last. Pro camera system with 5x telephoto.",
     },
   })
 
@@ -76,11 +79,14 @@ async function main() {
   // --- Product 2: Galaxy S24 Ultra ---
   const s24u = await prisma.product.upsert({
     where: { slug: 'galaxy-s24-ultra' },
-    update: {},
+    update: {
+      description: "Snapdragon 8 Gen 3 for peak speed. Titanium frame with built-in S Pen. 200MP camera with AI zoom.",
+    },
     create: {
       slug: 'galaxy-s24-ultra',
       name: 'Galaxy S24 Ultra',
       brand: 'Samsung',
+      description: "Snapdragon 8 Gen 3 for peak speed. Titanium frame with built-in S Pen. 200MP camera with AI zoom.",
     },
   })
 
@@ -145,11 +151,14 @@ async function main() {
   // --- Product 3: OnePlus 13 ---
   const op13 = await prisma.product.upsert({
     where: { slug: 'oneplus-13' },
-    update: {},
+    update: {
+      description: "Snapdragon 8 Elite for flagship performance. Hasselblad camera system. 100W fast charging included.",
+    },
     create: {
       slug: 'oneplus-13',
       name: 'OnePlus 13',
       brand: 'OnePlus',
+      description: "Snapdragon 8 Elite for flagship performance. Hasselblad camera system. 100W fast charging included.",
     },
   })
 

@@ -32,14 +32,14 @@ export default async function HomePage() {
 
   if (error) {
     return (
-      <main className="max-w-6xl mx-auto px-6 py-12">
+      <main className="max-w-[1400px] mx-auto px-8 py-12">
         <p className="text-text-muted">{error}</p>
       </main>
     )
   }
 
   return (
-    <main className="max-w-6xl mx-auto px-6 py-12">
+    <main className="max-w-[1400px] mx-auto px-8 py-12">
       <header className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight text-text">EMICompare</h1>
         <p className="mt-2 text-text-muted">Compare EMI plans on the latest smartphones.</p>
