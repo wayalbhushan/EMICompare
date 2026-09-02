@@ -115,22 +115,23 @@ export default function ProductDetail({ product }: Props) {
               <span className="tabular text-2xl font-bold text-text">₹{formatINR(selectedVariant.price)}</span>
               <span className="tabular text-base text-text-muted line-through">₹{formatINR(selectedVariant.mrp)}</span>
             </div>
+            <p className="text-sm text-text-muted">EMI plans backed by mutual funds</p>
           </div>
         </div>
 
         {/* ── RIGHT COLUMN ── */}
-        <div className="flex flex-col gap-4">
+        <div className="relative flex flex-col gap-4">
           <p className="text-xs font-semibold text-text-muted uppercase tracking-widest">EMI Plans</p>
 
-          {/* EMI plan list */}
-          <div className="flex flex-col gap-2">
+          {/* EMI plan list — pb-20 ensures the sticky CTA never obscures the last row */}
+          <div className="flex flex-col gap-2 pb-20">
             {selectedVariant.emiPlans.map((plan) => {
               const isSelected = plan.id === selectedPlanId
               return (
                 <div
                   key={plan.id}
                   onClick={() => handlePlanSelect(plan.id)}
-                  className={`flex items-start gap-4 p-4 rounded-lg cursor-pointer transition-colors ${
+                  className={`flex items-center gap-4 px-4 py-3 rounded-lg cursor-pointer transition-colors ${
                     isSelected
                       ? 'bg-accent-light border-2 border-accent'
                       : 'bg-surface border border-border hover:border-text-muted'
@@ -138,33 +139,36 @@ export default function ProductDetail({ product }: Props) {
                 >
                   {/* Radio circle */}
                   <div
-                    className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                    className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
                       isSelected ? 'border-accent bg-accent' : 'border-border bg-surface'
                     }`}
                   >
                     {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
                   </div>
 
-                  {/* Plan info */}
+                  {/* Plan info — 2-line max */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2 flex-wrap">
-                      <span className="tabular text-lg font-semibold text-text">
+                    {/* Line 1: amount · tenure · badge */}
+                    <div className="flex items-center gap-3">
+                      <span className="tabular text-base font-semibold text-text whitespace-nowrap">
                         ₹{formatINR(plan.monthlyAmount)}/mo
                       </span>
-                      {/* Interest badge */}
-                      {plan.interestRate === 0 ? (
-                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green/10 text-green">
-                          0% interest
-                        </span>
-                      ) : (
-                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-text-muted/10 text-text-muted">
-                          {plan.interestRate}% interest
-                        </span>
-                      )}
+                      <span className="text-sm text-text-muted whitespace-nowrap">{plan.tenureMonths} months</span>
+                      <span className="ml-auto flex-shrink-0">
+                        {plan.interestRate === 0 ? (
+                          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green/10 text-green">
+                            0% interest
+                          </span>
+                        ) : (
+                          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-text-muted/10 text-text-muted">
+                            {plan.interestRate}% interest
+                          </span>
+                        )}
+                      </span>
                     </div>
-                    <p className="text-sm text-text-muted mt-0.5">{plan.tenureMonths} months</p>
+                    {/* Line 2: cashback — only rendered when present */}
                     {plan.cashbackAmount !== null && (
-                      <p className="text-xs text-green mt-1 font-medium">
+                      <p className="text-xs text-green mt-0.5 font-medium">
                         +₹{formatINR(plan.cashbackAmount)} cashback
                       </p>
                     )}
@@ -174,8 +178,8 @@ export default function ProductDetail({ product }: Props) {
             })}
           </div>
 
-          {/* Sticky CTA */}
-          <div className="sticky bottom-4 mt-2">
+          {/* Sticky CTA — solid bg-accent, no transparency */}
+          <div className="sticky bottom-4">
             {confirmed && selectedPlan ? (
               <div className="w-full rounded-lg p-4 bg-accent-light border border-accent text-center">
                 <p className="text-sm font-semibold text-accent">
@@ -187,10 +191,8 @@ export default function ProductDetail({ product }: Props) {
               <button
                 onClick={handleProceed}
                 disabled={!selectedPlanId}
-                className={`w-full py-4 rounded-lg text-sm font-semibold transition-all ${
-                  selectedPlanId
-                    ? 'bg-accent text-white cursor-pointer hover:opacity-90'
-                    : 'bg-accent text-white opacity-40 cursor-not-allowed'
+                className={`w-full py-4 rounded-lg text-sm font-semibold bg-accent text-white transition-opacity ${
+                  selectedPlanId ? 'opacity-100 cursor-pointer hover:opacity-90' : 'opacity-40 cursor-not-allowed'
                 }`}
               >
                 Proceed with this plan
