@@ -32,7 +32,10 @@ export interface Product {
 
 async function getProduct(slug: string): Promise<Product | null> {
   const hdrs = await headers()
-  const host = hdrs.get('host') ?? 'localhost:3000'
+  let host = hdrs.get('host') ?? 'localhost:3000'
+  if (host.includes('localhost')) {
+    host = '127.0.0.1:3000'
+  }
   const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
   const res = await fetch(`${protocol}://${host}/api/products/${slug}`, { cache: 'no-store' })
   if (res.status === 404) return null

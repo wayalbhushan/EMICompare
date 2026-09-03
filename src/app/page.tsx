@@ -13,7 +13,10 @@ interface Product {
 
 async function getProducts(): Promise<Product[]> {
   const hdrs = await headers()
-  const host = hdrs.get('host') ?? 'localhost:3000'
+  let host = hdrs.get('host') ?? 'localhost:3000'
+  if (host.includes('localhost')) {
+    host = '127.0.0.1:3000'
+  }
   const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
   const res = await fetch(`${protocol}://${host}/api/products`, { cache: 'no-store' })
   if (!res.ok) throw new Error('Failed to fetch')
