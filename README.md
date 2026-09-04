@@ -1,69 +1,37 @@
 # EMICompare
 
-A full-stack web application that displays smartphones with multiple EMI plans backed by mutual funds, similar to [Snapmint](https://snapmint.com). Built as the 1Fi SDE1 Assignment.
+## 1. Overview
+EMICompare is a full-stack web application featuring dynamic smartphone product pages with multi-tier EMI plans backed by mutual funds. It demonstrates a robust relational database design and API integration, ensuring all product and pricing data is fetched dynamically from a live PostgreSQL database rather than being hardcoded. 
 
-## Live Demo
+## 2. Live Links
+- **Deployed app:** https://emi-compare.vercel.app
+- **Demo video:** https://youtu.be/ntwk34SzBO0
+- **GitHub repo:** https://github.com/wayalbhushan/EMICompare
 
-> Deploy to Vercel and add your link here.
+## 3. Tech Stack
+- **Next.js 14 (App Router)** — single codebase for frontend + API routes, server-rendered product pages
+- **TypeScript** — type safety across API responses and components
+- **Prisma 6.19 + PostgreSQL** — relational schema fits the Product → Variant → EMIPlan data shape (fixed fields, real foreign-key relationships, not document-shaped data)
+- **Tailwind CSS** — utility-first styling, custom design tokens for the color/spacing system used throughout
+- **Vercel & Neon** — Deployed on Vercel, database hosted on Neon (cloud Postgres from day one — avoids local-vs-prod environment drift)
 
-## Tech Stack
-
-| Layer     | Technology                               |
-|-----------|------------------------------------------|
-| Frontend  | Next.js 14+ (App Router), React, Tailwind CSS |
-| Backend   | Next.js Route Handlers (Node.js)         |
-| Database  | PostgreSQL (hosted on Neon)              |
-| ORM       | Prisma 6                                 |
-
----
-
-## Setup and Run Instructions
-
-### 1. Clone the repository
-```bash
-git clone https://github.com/wayalbhushan/EMICompare.git
-cd EMICompare
-```
-
-### 2. Install dependencies
-```bash
-npm install
-```
-
-### 3. Configure environment variables
-Create a `.env` file in the root directory:
-```env
-DATABASE_URL="postgresql://user:password@host:port/database?sslmode=require"
-```
-> Get a free PostgreSQL database at [neon.tech](https://neon.tech).
-
-### 4. Push schema to database
-```bash
-npx prisma db push
-```
-
-### 5. Seed the database with sample data
-```bash
-npx prisma db seed
-```
-This will populate the database with 3 products (iPhone 17 Pro, Galaxy S24 Ultra, OnePlus 13), 2 variants each (256GB and 512GB), and 7 EMI plans per variant (42 total).
-
-### 6. Start the development server
-```bash
-npm run dev
-```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
----
-
-## Database Schema
-
-Three models with 1-to-many relationships: `Product → Variant → EMIPlan`.
-
+## 4. Schema
 ```prisma
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
 model Product {
   id          String    @id @default(cuid())
-  slug        String    @unique        // used for URL routing
+  slug        String    @unique
   name        String
   brand       String?
   category    String?
@@ -73,43 +41,77 @@ model Product {
 }
 
 model Variant {
-  id        String    @id @default(cuid())
-  productId String
-  product   Product   @relation(fields: [productId], references: [id])
-  color     String?
-  storage   String?
-  sku       String    @unique
-  mrp       Decimal   @db.Decimal(10, 2)
-  price     Decimal   @db.Decimal(10, 2)
-  imageUrl  String
-  createdAt DateTime  @default(now())
-  emiPlans  EMIPlan[]
+  id          String    @id @default(cuid())
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id])
+  color       String?
+  storage     String?
+  sku         String    @unique
+  mrp         Decimal   @db.Decimal(10, 2)
+  price       Decimal   @db.Decimal(10, 2)
+  imageUrl    String
+  createdAt   DateTime  @default(now())
+  emiPlans    EMIPlan[]
 
   @@unique([productId, color, storage])
 }
 
 model EMIPlan {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid())
   variantId      String
-  variant        Variant  @relation(fields: [variantId], references: [id])
+  variant        Variant   @relation(fields: [variantId], references: [id])
   tenureMonths   Int
-  interestRate   Decimal  @db.Decimal(4, 2)
-  monthlyAmount  Decimal  @db.Decimal(10, 2)
-  cashbackAmount Decimal? @db.Decimal(10, 2)
-  createdAt      DateTime @default(now())
+  interestRate   Decimal   @db.Decimal(4, 2)
+  monthlyAmount  Decimal   @db.Decimal(10, 2)
+  cashbackAmount Decimal?  @db.Decimal(10, 2)
+  createdAt      DateTime  @default(now())
 
   @@unique([variantId, tenureMonths])
 }
 ```
+- EMI plans belong to Variant, not Product (price differs by variant, so EMI amount must be tied to variant price)
+- Decimal type used for all money fields, not Float, to avoid floating point rounding errors on currency
+- `@@unique` constraints on `(productId, color, storage)` and `(variantId, tenureMonths)` enforce data integrity at the DB level, not just app-level validation
 
----
+## 5. Setup and Run Instructions
+**Prerequisites:** Node.js (v22.20.0 used for development) and `npm`.
 
-## API Endpoints
+1. **Clone and install dependencies:**
+   ```bash
+   git clone https://github.com/wayalbhushan/EMICompare.git
+   cd EMICompare
+   npm install
+   ```
+2. **Setup environment variables:**
+   Create a `.env` file at the project root. The `DATABASE_URL` needs a real Postgres connection string (e.g. from Neon's free tier).
+   ```env
+   DATABASE_URL="postgresql://user:password@host:port/database?sslmode=require"
+   ```
+3. **Generate Prisma client:**
+   ```bash
+   npx prisma generate
+   ```
+4. **Deploy database schema:**
+   ```bash
+   npx prisma migrate deploy
+   ```
+   *(Note: `migrate deploy` applies existing migrations cleanly to a fresh database environment. `migrate dev` is strictly for generating new migrations during active local development.)*
+5. **Seed the database:**
+   ```bash
+   npx prisma db seed
+   ```
+6. **Start the application:**
+   ```bash
+   npm run dev
+   ```
+   The application will start on `http://localhost:3000`.
 
-### `GET /api/products`
-Returns a summary list of all products with their starting price and image.
+## 6. API Endpoints
 
-**Example Response:**
+### Get All Products
+- **Method & Path:** `GET /api/products`
+- **Description:** Returns a summarized list of all products, dynamically computing the starting price and pulling the default image.
+- **Example Response:**
 ```json
 [
   {
@@ -139,14 +141,10 @@ Returns a summary list of all products with their starting price and image.
 ]
 ```
 
----
-
-### `GET /api/products/:slug`
-Returns full product details including all variants and their EMI plans.
-
-**Example:** `GET /api/products/iphone-17-pro`
-
-**Example Response:**
+### Get Product Details
+- **Method & Path:** `GET /api/products/[slug]`
+- **Description:** Retrieves the full, deeply nested dataset for a specific product, including its variants and EMI plans.
+- **Example Response (Success):**
 ```json
 {
   "id": "cmtk95e1o0000wzmsu3lmm2vc",
@@ -183,35 +181,22 @@ Returns full product details including all variants and their EMI plans.
   ]
 }
 ```
+- **Example Response (404 Not Found):**
+```json
+{
+  "error": "Product not found"
+}
+```
 
-Returns `404` if the slug does not match any product.
+## 7. Known Limitations
+- No checkout/payment flow — assignment scope is limited to displaying and selecting a plan, "Proceed" shows a confirmation state only, no backend order processing exists
+- Single currency (INR) assumed, not configurable
+- EMI amounts are precomputed and stored, not calculated live from a formula at request time
+- Trust-signal badges ("Backed by mutual funds," "Instant approval") are generic UI elements for this demo, not claims about a real service
+- Product images sourced from manufacturer press assets for demo purposes only, not licensed for production/commercial use
 
----
-
-## Next Steps (Remaining Deliverables)
-
-There are two things left to submit this assignment:
-
-### 1. Deploy to Vercel
-1. Go to [vercel.com](https://vercel.com) and sign in with your GitHub account.
-2. Click **"Add New Project"** → Import `wayalbhushan/EMICompare`.
-3. Under **Environment Variables**, add `DATABASE_URL` with your Neon connection string.
-4. Click **Deploy**.
-5. Copy the live URL (e.g., `https://emi-compare.vercel.app`) and add it at the top of this README.
-
-### 2. Record a 2-5 Minute Demo Video
-Cover the following in the video:
-- [ ] Show the homepage listing all 3 products
-- [ ] Click a product card to navigate to its unique URL (`/products/iphone-17-pro`)
-- [ ] Switch between the 256GB and 512GB variants and show the price and EMI plans update
-- [ ] Select an EMI plan and click "Proceed with this plan"
-- [ ] Open the Network tab in DevTools and show the `/api/products` and `/api/products/:slug` API calls returning real data
-- [ ] Open Neon (or any DB client) and show the seeded `Product`, `Variant`, and `EMIPlan` tables
-
-Upload to Google Drive or YouTube (unlisted is fine) and make sure **anyone with the link can view**.
-
-### 3. Submit the Form
-Fill in the assignment submission form: [https://forms.gle/V4vqbcSAhJV7BqoAA](https://forms.gle/V4vqbcSAhJV7BqoAA) with:
-- GitHub repo link: `https://github.com/wayalbhushan/EMICompare`
-- Deployed demo link (after Vercel deploy)
-- Video link
+## 8. Project Structure
+- `src/app/` — Contains the Next.js App Router structure, including the main page, dynamic routes, and backend API handlers.
+- `src/components/` — Contains the React UI components, specifically the interactive `ProductDetail` client component.
+- `src/lib/` — Houses shared utility functions and the Prisma database singleton.
+- `prisma/` — Holds the PostgreSQL database schema, migrations, and the seed script for initializing data.
