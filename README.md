@@ -17,8 +17,6 @@ EMICompare is a full-stack web application featuring dynamic smartphone product 
 
 ## 4. Schema
 ```prisma
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
@@ -192,9 +190,7 @@ model EMIPlan {
 - No checkout/payment flow — assignment scope is limited to displaying and selecting a plan, "Proceed" shows a confirmation state only, no backend order processing exists
 - Single currency (INR) assumed, not configurable
 - EMI amounts are precomputed and stored, not calculated live from a formula at request time
-- Trust-signal badges ("Backed by mutual funds," "Instant approval") are generic UI elements for this demo, not claims about a real service
-- Product images sourced from manufacturer press assets for demo purposes only, not licensed for production/commercial use
-
+- Product images sourced from manufacturer press assets for demo purposes only.
 ## 8. Project Structure
 - `src/app/` — Contains the Next.js App Router structure, including the main page, dynamic routes, and backend API handlers.
 - `src/components/` — Contains the React UI components, specifically the interactive `ProductDetail` client component.
